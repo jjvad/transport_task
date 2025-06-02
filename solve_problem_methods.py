@@ -130,6 +130,19 @@ def potential_method(suppliers, consumers, cost_matrix):
         entering_i, entering_j = np.unravel_index(np.argmin(delta_ij), delta_ij.shape)
         loop = find_loop(plan, entering_i, entering_j)
 
+        if not loop:
+            # Добавляем искусственную малую перевозку
+            for i in range(m):
+                for j in range(n):
+                    if plan[i][j] == 0:
+                        plan[i][j] = 0.0001
+                        loop = find_loop(plan, entering_i, entering_j)
+                        if loop:
+                            break
+                if loop:
+                    break
+            if not loop:
+                raise ValueError("Цикл так и не найден. Задача слишком сложная.")
 
         theta = min(plan[i][j] for i, j in loop[1::2])
 
